@@ -1,72 +1,64 @@
-import 'dart:developer';
+
+
 import 'package:flutter/material.dart';
 import 'db_helper.dart';
 import 'home_screen.dart';
 
 class NoteScreen extends StatefulWidget {
-  String? title ;
+  String? title;
   String? des;
   int? id;
 
-  NoteScreen({super.key, this.title,  this.des, this.id});
+  final Function(ThemeMode)? toggleTheme; // Nullable callback
+
+  NoteScreen({super.key, this.title, this.des, this.id, this.toggleTheme});
 
   @override
   _NoteScreenState createState() => _NoteScreenState();
 }
 
 class _NoteScreenState extends State<NoteScreen> {
-
-  String appbarTitle = "" ;
+  String appbarTitle = "";
 
   @override
   void initState() {
-
-    if(widget.id != null ) {
-
+    super.initState();
+    if (widget.id != null) {
       titleController.text = widget.title ?? '';
-      descriptionController.text = widget.des ?? '' ;
+      descriptionController.text = widget.des ?? '';
     }
-
   }
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final DbHelper dbHelper = DbHelper();
 
-  void saveAndupdate()  {
-if(widget.id == null ){
-  appbarTitle = "Add Note";
-  dbHelper.insertNote(titleController.text, descriptionController.text).then((onValue){
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text( "Notes Added Successfully")));
-    titleController.clear();
-      descriptionController.clear();
-
-    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen())).catchError((onError){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text( "Insertion Failed $onError")));
-
-
-    });
-  });
-
-}
- else {
-  appbarTitle = "Update Note";
-
-   dbHelper.updateNotes(titleController.text, descriptionController.text, widget.id!).then((onValue){
-
-     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text( "Notes Updates Successfully")));
-     Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-
-
-   }).catchError((onError){
-
-     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text( "Updation Failed $onError")));
-
-   });
-
-}
-
-
+  void saveAndupdate() {
+    if (widget.id == null) {
+      appbarTitle = "Add Note";
+      dbHelper.insertNote(titleController.text, descriptionController.text).then((onValue) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Notes Added Successfully")));
+        titleController.clear();
+        descriptionController.clear();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(toggleTheme: widget.toggleTheme)),
+        );
+      }).catchError((onError) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Insertion Failed $onError")));
+      });
+    } else {
+      appbarTitle = "Update Note";
+      dbHelper.updateNotes(titleController.text, descriptionController.text, widget.id!).then((onValue) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Notes Updated Successfully")));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(toggleTheme: widget.toggleTheme)),
+        );
+      }).catchError((onError) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Updation Failed $onError")));
+      });
+    }
   }
 
   @override
@@ -74,7 +66,7 @@ if(widget.id == null ){
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title:  Text(appbarTitle),
+        title: Text(appbarTitle),
       ),
       body: SingleChildScrollView(
         child: FutureBuilder(
@@ -107,39 +99,13 @@ if(widget.id == null ){
                       onPressed: () {
                         String title = titleController.text.trim();
                         String description = descriptionController.text.trim();
-
                         if (title.isEmpty || description.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Title and description cannot be empty.')),
                           );
                           return;
                         }
-saveAndupdate();
-                        // dbHelper.insertNote(
-                        //   title,
-                        //   description,
-                        // ).then((value) {
-                        //   log("Success");
-                        //   ScaffoldMessenger.of(context).showSnackBar(
-                        //     const SnackBar(content: Text('Note added successfully!')),
-                        //   );
-                        //   titleController.clear();
-                        //   descriptionController.clear();
-                        //
-                        //   Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //       builder: (context) => HomeScreen(),
-                        //     ),
-                        //   );
-                        // }).catchError((onError) {
-                        //   log("Facing error: $onError");
-                        //   ScaffoldMessenger.of(context).showSnackBar(
-                        //     const SnackBar(content: Text('Failed to add note.')),
-                        //   );
-                        // }
-                        //
-                        // );
+                        saveAndupdate();
                       },
                       child: const Text("Save"),
                     ),
