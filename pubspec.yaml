@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   sqflite: ^2.3.3+1
   path_provider: ^2.1.4
+  provider: ^6.1.2
+  google_fonts: ^6.2.1
   intl: any
   flutter_localizations:
     sdk: flutter
@@ -81,10 +83,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+     - family: jm
+       fonts:
+         - asset: fonts/jm.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

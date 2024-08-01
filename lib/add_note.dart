@@ -1,8 +1,10 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'db_helper.dart';
 import 'home_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NoteScreen extends StatefulWidget {
   String? title;
@@ -35,9 +37,9 @@ class _NoteScreenState extends State<NoteScreen> {
 
   void saveAndupdate() {
     if (widget.id == null) {
-      appbarTitle = "Add Note";
+
       dbHelper.insertNote(titleController.text, descriptionController.text).then((onValue) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Notes Added Successfully")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.notes_added)));
         titleController.clear();
         descriptionController.clear();
         Navigator.pushReplacement(
@@ -45,18 +47,18 @@ class _NoteScreenState extends State<NoteScreen> {
           MaterialPageRoute(builder: (context) => HomeScreen(toggleTheme: widget.toggleTheme)),
         );
       }).catchError((onError) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Insertion Failed $onError")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${AppLocalizations.of(context)!.insertion_failed} $onError")));
       });
     } else {
-      appbarTitle = "Update Note";
+
       dbHelper.updateNotes(titleController.text, descriptionController.text, widget.id!).then((onValue) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Notes Updated Successfully")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.notes_updated)));
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen(toggleTheme: widget.toggleTheme)),
         );
       }).catchError((onError) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Updation Failed $onError")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${AppLocalizations.of(context)!.updation_failed} $onError")));
       });
     }
   }
@@ -66,7 +68,7 @@ class _NoteScreenState extends State<NoteScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: Text(appbarTitle),
+        title: Text(AppLocalizations.of(context)!.appbar_title),
       ),
       body: SingleChildScrollView(
         child: FutureBuilder(
@@ -79,8 +81,8 @@ class _NoteScreenState extends State<NoteScreen> {
                   children: [
                     TextField(
                       controller: titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Title',
+                      decoration:  InputDecoration(
+                        labelText: AppLocalizations.of(context)!.title,
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -89,8 +91,8 @@ class _NoteScreenState extends State<NoteScreen> {
                       controller: descriptionController,
                       minLines: 3,
                       maxLines: 10,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
+                      decoration:  InputDecoration(
+                        labelText: AppLocalizations.of(context)!.description,
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -101,13 +103,14 @@ class _NoteScreenState extends State<NoteScreen> {
                         String description = descriptionController.text.trim();
                         if (title.isEmpty || description.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Title and description cannot be empty.')),
+                             SnackBar(content: Text('Title and description cannot be empty.',)),
                           );
                           return;
                         }
                         saveAndupdate();
                       },
-                      child: const Text("Save"),
+
+                      child:  Text(AppLocalizations.of(context)!.save),
                     ),
                   ],
                 ),

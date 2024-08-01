@@ -1,4 +1,13 @@
 
 {
-    "notes" : "Notes"
+    "notes" : "Notes",
+    "appbar_title" : "Add/Edit Note",
+    "title" : "Title",
+    "description" : "Description",
+    "save" : "Save",
+    "notes_added" : "Notes Added Successfully",
+    "insertion_failed" :  "Insertion Failed" ,
+    "notes_updated" : "Notes Updated Successfully",
+    "updation_failed" : "Updation Failed"
+
 }

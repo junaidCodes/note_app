@@ -1,6 +1,8 @@
 
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'controller/language_provider.dart';
 import 'db_helper.dart';
 import 'add_note.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -14,6 +16,7 @@ class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
+enum Languages{english , urdu}
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> notes = [];
@@ -55,6 +58,29 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(AppLocalizations.of(context)!.notes ),
         centerTitle: true,
         actions: [
+          Consumer<LanguageProvider>(builder: (context, provider, child) {
+            return  PopupMenuButton(
+                onSelected: (Languages item){
+                  if(Languages.english.name == item.name){
+                    log("lang.name ${Languages.english.name}" );
+                    log("item.name  ${item.name}");
+                    provider.changeLang(const Locale('eng'));
+                  }
+                  else {
+                    provider.changeLang(const Locale('ur'));
+                  }
+                },
+                icon: Icon(Icons.language),
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<Languages>>[
+                  const PopupMenuItem(
+                      value: Languages.english,
+                      child: Text("English")),
+                  const PopupMenuItem(
+                      value: Languages.urdu,
+                      child: Text("Urdu")),
+                ]
+            );
+          }),
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
