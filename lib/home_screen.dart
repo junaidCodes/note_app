@@ -1,5 +1,6 @@
 
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'controller/language_provider.dart';
@@ -49,38 +50,20 @@ class _HomeScreenState extends State<HomeScreen> {
         leading: Switch(
           value: isDarkMode,
           onChanged: (isOn) {
+            log("isDarkMode $isDarkMode");
+            log(isOn.toString());
             if (widget.toggleTheme != null) {
               widget.toggleTheme!(isOn ? ThemeMode.dark : ThemeMode.light);
+
             }
+
           },
         ),
         backgroundColor: Colors.blueGrey,
         title: Text(AppLocalizations.of(context)!.notes ),
         centerTitle: true,
         actions: [
-          Consumer<LanguageProvider>(builder: (context, provider, child) {
-            return  PopupMenuButton(
-                onSelected: (Languages item){
-                  if(Languages.english.name == item.name){
-                    log("lang.name ${Languages.english.name}" );
-                    log("item.name  ${item.name}");
-                    provider.changeLang(const Locale('eng'));
-                  }
-                  else {
-                    provider.changeLang(const Locale('ur'));
-                  }
-                },
-                icon: Icon(Icons.language),
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<Languages>>[
-                  const PopupMenuItem(
-                      value: Languages.english,
-                      child: Text("English")),
-                  const PopupMenuItem(
-                      value: Languages.urdu,
-                      child: Text("Urdu")),
-                ]
-            );
-          }),
+         switchLanguage(),
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
@@ -92,7 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
+      body: notes.isEmpty? Center(child: Text(AppLocalizations.of(context)!.empty_note,style: TextStyle(fontSize: 14),),):
+      ListView.builder(
         itemCount: notes.length,
         itemBuilder: (context, index) {
           return Padding(
@@ -152,4 +136,33 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+Widget switchLanguage(){
+  return    Consumer<LanguageProvider>(builder: (context, provider, child) {
+    return  PopupMenuButton(
+        onSelected: (Languages item){
+          if(Languages.english.name == item.name){
+            log("lang.name ${Languages.english.name}" );
+            log("item.name  ${item.name}");
+            provider.changeLang(const Locale('en'));
+          }
+          else {
+            provider.changeLang(const Locale('ur'));
+          }
+        },
+        icon: Icon(Icons.language),
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<Languages>>[
+          PopupMenuItem(
+              value: Languages.english,
+              child: Text(AppLocalizations.of(context)?.english ?? "")),
+          PopupMenuItem(
+              value: Languages.urdu,
+              child: Text(AppLocalizations.of(context)!.urdu)),
+        ]
+    );
+  });
+
+
+
 }

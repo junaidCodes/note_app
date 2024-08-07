@@ -1,27 +1,44 @@
 
+
+import 'dart:developer';
 import 'dart:ui';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'controller/language_provider.dart';
 import 'db_helper.dart';
 import 'add_note.dart';
+import 'firebase_options.dart';
 import 'home_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+
+  );
+  SharedPreferences sp = await SharedPreferences.getInstance();
+  String? langCode = sp.getString('langCode') ?? 'en'; // Default to English
+  OneSignal.initialize('7ba16e95-9f98-46df-8f21-33da1d508e6d');
+  OneSignal.Notifications.requestPermission(true);
+  // OneSignal.Notifications.displayNotification(notificationId)
 
 
-
-void main() {
   runApp(
-    /// Providers are above [MyApp] instead of inside it, so that tests
-    /// can use [MyApp] while mocking the providers
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider(initialLocale:
+            Locale(langCode),
+          ),
+        ),
       ],
-      child:   MyApp(),
+      child: MyApp(),
     ),
   );
 }
@@ -30,11 +47,9 @@ class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
+final key = GlobalKey<NavigatorState>();
 
 class _MyAppState extends State<MyApp> {
-
-
-
   ThemeMode _themeMode = ThemeMode.system;
 
   void toggleTheme(ThemeMode themeMode) {
@@ -42,42 +57,91 @@ class _MyAppState extends State<MyApp> {
       _themeMode = themeMode;
     });
   }
+
   @override
   void initState() {
-    // TODO: implement initState
+    super.initState();
     localInitialization();
+    getData();
+
   }
+  void dispose(){
+    getData();
+    super.dispose();
+  }
+
+  bool isOn = false;
+  void getData() {
+    OneSignal.Notifications.addClickListener((event) {
+      log((event.notification.jsonRepresentation()));
+      var dataa = event.notification.jsonRepresentation().split(',');
+      log("var-------->>>>>>>>> $dataa");
+
+      if (isOn) return;
+
+
+      final data = event.notification.additionalData;
+      final navigateToScreen = data?['navigate'];
+      if (navigateToScreen != null) {
+        if (navigateToScreen == 'true') {
+          key.currentState?.pushNamed('note');
+        } else if (navigateToScreen == 'false') {
+          key.currentState?.pushNamed('home');
+        } else {
+          key.currentState?.pushNamed('home');
+
+        }
+
+        isOn = true;
+      }
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
-    Locale myLocale = window.locale;
-    // PlatformDispatcher.instance.onLocaleChanged = rebuildOnLocaleChange();
 
-    return Consumer<LanguageProvider>(builder: (context, provider, child){
+    return Consumer<LanguageProvider>(builder: (context, provider, child) {
+      final textTheme = ThemeData.light().textTheme.apply(
+        fontFamily: provider.langLocale == const Locale('ur') ? 'jm' : 'jm',
+      );
+      final darkTextTheme = ThemeData.dark().textTheme.apply(
+        fontFamily: provider.langLocale == const Locale('ur') ? 'jm' : 'jm',
+      );
+
       return MaterialApp(
+        initialRoute: 'home',
+        routes: {
+          'home': (context) => HomeScreen(  toggleTheme: toggleTheme,),
+          'note': (context) => NoteScreen(),
+        },
+        navigatorKey: key,
+        debugShowCheckedModeBanner: false,
         locale: provider.langLocale,
         localizationsDelegates: const [
-          AppLocalizations.delegate, // Add this line
+          AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: [
+        supportedLocales: const [
           Locale('en'),
           Locale('ur'),
         ],
-
-        theme: ThemeData(fontFamily: myLocale.languageCode == 'ur' ? "jm" : "jm" ),
-        darkTheme: ThemeData.dark(),
+        theme: ThemeData(
+          textTheme: textTheme,
+        ),
+        darkTheme: ThemeData.dark().copyWith(
+          textTheme: darkTextTheme,
+        ),
         themeMode: _themeMode,
-        home: HomeScreen(toggleTheme: toggleTheme),
+        // home: HomeScreen(toggleTheme: toggleTheme),
       );
     });
-    
-
   }
-   void localInitialization(){
 
-   // localization.init(map)
-   }
+  void localInitialization() {
+    // localization.init(map)
+  }
 }

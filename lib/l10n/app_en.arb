@@ -8,6 +8,9 @@
     "notes_added" : "Notes Added Successfully",
     "insertion_failed" :  "Insertion Failed" ,
     "notes_updated" : "Notes Updated Successfully",
-    "updation_failed" : "Updation Failed"
+    "updation_failed" : "Updation Failed",
+    "english" : "English",
+    "urdu" : "Urdu",
+    "empty_note" : "No Note Found! click on + icon to create Note"
 
 }

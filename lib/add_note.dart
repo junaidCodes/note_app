@@ -42,9 +42,11 @@ class _NoteScreenState extends State<NoteScreen> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.notes_added)));
         titleController.clear();
         descriptionController.clear();
-        Navigator.pushReplacement(
+
+        Navigator.pushAndRemoveUntil<void>(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen(toggleTheme: widget.toggleTheme)),
+          MaterialPageRoute<void>(builder: (BuildContext context) => HomeScreen(toggleTheme: widget.toggleTheme)),
+          ModalRoute.withName('/'),
         );
       }).catchError((onError) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${AppLocalizations.of(context)!.insertion_failed} $onError")));
