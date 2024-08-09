@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:noteapp/newScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'controller/language_provider.dart';
 import 'db_helper.dart';
@@ -51,6 +52,8 @@ final key = GlobalKey<NavigatorState>();
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.system;
+  bool isOn = false;
+
 
   void toggleTheme(ThemeMode themeMode) {
     setState(() {
@@ -70,15 +73,13 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  bool isOn = false;
   void getData() {
+
     OneSignal.Notifications.addClickListener((event) {
+
       log((event.notification.jsonRepresentation()));
-      var dataa = event.notification.jsonRepresentation().split(',');
-      log("var-------->>>>>>>>> $dataa");
 
       if (isOn) return;
-
 
       final data = event.notification.additionalData;
       final navigateToScreen = data?['navigate'];
@@ -92,7 +93,12 @@ class _MyAppState extends State<MyApp> {
 
         }
 
+
         isOn = true;
+
+        Future.delayed(const Duration(seconds: 2), () {
+          isOn = false;
+        });
       }
     });
   }
@@ -113,8 +119,10 @@ class _MyAppState extends State<MyApp> {
       return MaterialApp(
         initialRoute: 'home',
         routes: {
+
+
           'home': (context) => HomeScreen(  toggleTheme: toggleTheme,),
-          'note': (context) => NoteScreen(),
+          'note': (context) => NoteScreen( toggleTheme: toggleTheme),
         },
         navigatorKey: key,
         debugShowCheckedModeBanner: false,
